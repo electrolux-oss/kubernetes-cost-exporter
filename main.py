@@ -14,7 +14,7 @@ class key_value_arg(argparse.Action):
         setattr(namespace, self.dest, dict())
 
         for kvpair in values:
-            assert(len(kvpair.split("=")) == 2)
+            assert len(kvpair.split("=")) == 2
 
             key, value = kvpair.split("=")
             getattr(namespace, self.dest)[key] = value
@@ -32,7 +32,8 @@ def get_args():
     parser.add_argument("-a", "--aggregate", default="namespace",
                         help="Aggregation level, e.g., namespace, cluster")
     parser.add_argument("-l", "--label", nargs="*", action=key_value_arg,
-                        help="Additional labels that need to be added to the metric, may be used several times, e.g., --label project=foo environment=dev")
+                        help="Additional labels that need to be added to the metric, \
+                            may be used several times, e.g., --label project=foo environment=dev")
     args = parser.parse_args()
 
     return args

@@ -15,9 +15,10 @@ class MetricExporter:
         self.interval = interval
         self.extra_labels = extra_labels
         self.labels = set([aggregate])
-        if extra_labels != None:
+        if extra_labels is not None:
             self.labels.update(extra_labels.keys())
-        self.kubernetes_cost = Gauge("kubernetes_cost", "Kubernetes cost aggregated by %s"%self.aggregate, self.labels)
+        self.kubernetes_cost = Gauge(
+            "kubernetes_cost", "Kubernetes cost aggregated by %s" % self.aggregate, self.labels)
 
     def run_metrics_loop(self):
         while True:
@@ -25,13 +26,18 @@ class MetricExporter:
             time.sleep(self.interval)
 
     def fetch(self):
-        api = f"/allocation/view?aggregate={self.aggregate}&window=today&shareIdle=true&idle=true&idleByNode=false&shareTenancyCosts=true&shareNamespaces=&shareCost=NaN&shareSplit=weighted&chartType=costovertime&costUnit=cumulative&step="
+        api = (f"/allocation/view?aggregate={self.aggregate}&window=today&shareIdle=true&idle=true&"
+               "idleByNode=false&shareTenancyCosts=true&shareNamespaces=&shareCost=NaN&"
+               "shareSplit=weighted&chartType=costovertime&costUnit=cumulative&step=")
         response = requests.get(self.endpoint + api)
         if (response.status_code != 200 or response.json().get("code") != 200):
-            logging.error("error while fetching data from %s, status code %s, message %s!"%(api, response.status_code, response.text))
+            logging.error("error while fetching data from %s, status code %s, message %s!" % (
+                api, response.status_code, response.text))
         items = response.json()["data"]["items"]["items"]
         for item in items:
             if self.extra_labels:
-                self.kubernetes_cost.labels(**{self.aggregate: item["name"]}, **self.extra_labels).set(item["totalCost"])
+                self.kubernetes_cost.labels(
+                    **{self.aggregate: item["name"]}, **self.extra_labels).set(item["totalCost"])
             else:
-                self.kubernetes_cost.labels(**{self.aggregate: item["name"]}).set(item["totalCost"])
+                self.kubernetes_cost.labels(
+                    **{self.aggregate: item["name"]}).set(item["totalCost"])
