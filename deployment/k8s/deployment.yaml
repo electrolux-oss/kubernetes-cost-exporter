@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-cost-exporter
+  labels:
+    app.kubernetes.io/name: kubernetes-cost-exporter
+    app.kubernetes.io/part-of: finops
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/version: "v1.0.0"
+    app.kubernetes.io/language: python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubernetes-cost-exporter
+      app.kubernetes.io/part-of: finops
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kubernetes-cost-exporter
+        app.kubernetes.io/part-of: finops
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: kubernetes-cost-exporter
+          image: "opensourceelectrolux/finops-kubernetes-cost-exporter:v1.0.0"
+          # change the value of --endpoint if necessary, the format should be http://<kubecost-service-name>.<namespace>.svc:<exposed-port-for-kubecost-api>
+          command: [ "python", "main.py", "--endpoint", "http://kubecost-cost-analyzer.monitoring.svc:9003" ]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            failureThreshold: 10
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            failureThreshold: 10
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 500Mi
+            requests:
+              cpu: 50m
+              memory: 300Mi
