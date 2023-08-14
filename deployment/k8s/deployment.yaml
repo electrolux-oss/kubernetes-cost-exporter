@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: kubernetes-cost-exporter
     app.kubernetes.io/part-of: finops
     app.kubernetes.io/component: backend
-    app.kubernetes.io/version: "v1.0.0"
+    app.kubernetes.io/version: "v1.0.1"
     app.kubernetes.io/language: python
 spec:
   replicas: 1
@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: kubernetes-cost-exporter
-          image: "opensourceelectrolux/kubernetes-cost-exporter:v1.0.0"
+          image: "opensourceelectrolux/kubernetes-cost-exporter:v1.0.1"
           # change the value of --endpoint if necessary, the format should be http://<kubecost-service-name>.<namespace>.svc:<exposed-port-for-kubecost-api>
           command: [ "python", "main.py", "--endpoint", "http://kubecost-cost-analyzer.monitoring.svc:9003" ]
           imagePullPolicy: Always
