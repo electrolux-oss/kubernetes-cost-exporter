@@ -17,8 +17,8 @@ class MetricExporter:
         self.labels = set([aggregate])
         if extra_labels is not None:
             self.labels.update(extra_labels.keys())
-        self.kubernetes_cost = Gauge(
-            "kubernetes_cost", "Kubernetes cost aggregated by %s" % self.aggregate, self.labels)
+        self.kubernetes_daily_cost_usd = Gauge(
+            "kubernetes_daily_cost_usd", "Kubernetes daily cost in USD aggregated by %s" % self.aggregate, self.labels)
 
     def run_metrics_loop(self):
         while True:
@@ -36,8 +36,8 @@ class MetricExporter:
         items = response.json()["data"]["items"]["items"]
         for item in items:
             if self.extra_labels:
-                self.kubernetes_cost.labels(
+                self.kubernetes_daily_cost_usd.labels(
                     **{self.aggregate: item["name"]}, **self.extra_labels).set(item["totalCost"])
             else:
-                self.kubernetes_cost.labels(
+                self.kubernetes_daily_cost_usd.labels(
                     **{self.aggregate: item["name"]}).set(item["totalCost"])

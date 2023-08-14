@@ -4,6 +4,22 @@ With the help of [AWS Cost Explorer](https://aws.amazon.com/aws-cost-management/
 
 However, Kubecost or other similar tools usually have their own cost management dashboards and APIs. Engineers need to check this cost information in another place than their common monitoring dashboard. Kubernetes Cost Exporter provides a standard way for exposing cost information as Prometheus metrics, which can be used by any monitoring platforms such as Grafana and Datadog.
 
+## Sample Output
+
+```
+# HELP kubernetes_daily_cost_usd Kubernetes daily cost in USD aggregated by namespace
+# TYPE kubernetes_daily_cost_usd gauge
+kubernetes_daily_cost_usd{namespace="ingress"} 0.9518491293125411
+kubernetes_daily_cost_usd{namespace="ns1"} 1.6744666615442327
+kubernetes_daily_cost_usd{namespace="ns2"} 0.7495529489062231
+kubernetes_daily_cost_usd{namespace="ns3"} 1.0655696937099663
+kubernetes_daily_cost_usd{namespace="kube-system"} 1.1914006049581642
+...
+```
+
+*ps: As the metric name indicate, the metric shows the daily costs in USD. `Daily` is based a fixed 24h time window, from UTC 00:00 to UTC 24:00. `namespace` is a label based on `--aggregate` option. Users can also add custom labels using the `--label` option.*
+
+
 ## How Does This Work
 
 The current implementation fetches cost information from [Kubecost](https://github.com/kubecost) via its API `/allocation/view`. Though Kubecost exposes cost metrics like `node_cpu_hourly_cost`, it requires extra calculation to get a detailed cost report like namespace-level costs. By using its API `/allocation/view`, the calculated cost reports can be directly exposed as Prometheus metrics. The arguments that are used for calling this API include:
