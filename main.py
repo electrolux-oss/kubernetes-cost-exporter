@@ -27,6 +27,8 @@ def get_args():
                         help="Exporter's port (default: 9090)")
     parser.add_argument("-i", "--interval", default=60, type=int,
                         help="Update interval in seconds (default: 60)")
+    parser.add_argument("-n", "--name", default="kubernetes_daily_cost_usd",
+                        help="Name of the exposed metric (default: kubernetes_daily_cost_usd)")
     parser.add_argument("-e", "--endpoint", default="http://kubecost-cost-analyzer.monitoring.svc:9003",
                         help="Kubecost service endpoint (default: http://kubecost-cost-analyzer.monitoring.svc:9003)")
     parser.add_argument("-a", "--aggregate", default="namespace",
@@ -44,6 +46,7 @@ def main(args):
         endpoint=args.endpoint,
         aggregate=args.aggregate,
         interval=args.interval,
+        name=args.name,
         extra_labels=args.label
     )
     start_http_server(args.port)
