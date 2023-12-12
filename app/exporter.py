@@ -9,16 +9,17 @@ import logging
 
 
 class MetricExporter:
-    def __init__(self, endpoint, aggregate, interval, extra_labels):
+    def __init__(self, endpoint, aggregate, interval, name, extra_labels):
         self.endpoint = endpoint
         self.aggregate = aggregate
         self.interval = interval
+        self.name = name
         self.extra_labels = extra_labels
         self.labels = set([aggregate])
         if extra_labels is not None:
             self.labels.update(extra_labels.keys())
         self.kubernetes_daily_cost_usd = Gauge(
-            "kubernetes_daily_cost_usd", "Kubernetes daily cost in USD aggregated by %s" % self.aggregate, self.labels)
+            self.name, "Kubernetes daily cost in USD aggregated by %s" % self.aggregate, self.labels)
 
     def run_metrics_loop(self):
         while True:
