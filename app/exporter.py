@@ -23,6 +23,8 @@ class MetricExporter:
 
     def run_metrics_loop(self):
         while True:
+            # every time we clear up all the existing labels before setting new ones
+            self.kubernetes_daily_cost_usd.clear()
             self.fetch()
             time.sleep(self.interval)
 
