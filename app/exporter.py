@@ -41,14 +41,16 @@ class MetricExporter:
                 "error while fetching data from %s, status code %s, message %s!"
                 % (api, response.status_code, response.text)
             )
-        items = response.json()["data"]["items"]["items"]
-        for item in items:
-            aggregation_labels = {}
-            names = item["name"].split("/")
-            for i in range(len(self.aggregate)):
-                aggregation_labels[self.aggregate[i]] = names[i]
+        else:
+            items = response.json()["data"]["items"]["items"]
+            for item in items:
+                aggregation_labels = {}
+                names = item["name"].split("/")
+                for i in range(len(self.aggregate)):
+                    aggregation_labels[self.aggregate[i]] = names[i]
 
-            if self.extra_labels:
-                self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(item["totalCost"])
-            else:
-                self.kubernetes_daily_cost_usd.labels(**aggregation_labels).set(item["totalCost"])
+                if self.extra_labels:
+                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(item["totalCost"])
+                else:
+                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels).set(item["totalCost"])
+            logging.info(f"cost metric {self.name} updated successfully")
