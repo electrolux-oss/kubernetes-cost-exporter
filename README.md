@@ -17,7 +17,7 @@ kubernetes_daily_cost_usd{namespace="kube-system"} 1.1914006049581642
 ...
 ```
 
-*ps: As the metric name indicate, the metric shows the daily costs in USD. `Daily` is based a fixed 24h time window, from UTC 00:00 to UTC 24:00. `namespace` is a label based on `--aggregate` option. Users can also add custom labels using the `--label` option.*
+*ps: As the metric name indicate, the metric shows the daily costs in USD. `Daily` is based a fixed 24h time window, from UTC 00:00 to UTC 24:00. `namespace` is a label based on `--aggregate` option, which can be used several times for multiple aggregations. Users can also add custom labels using the `--label` option.*
 
 
 ## How Does This Work
