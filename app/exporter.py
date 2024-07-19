@@ -31,9 +31,10 @@ class MetricExporter:
 
     def fetch(self):
         api = (
-            f"/allocation/view?aggregate={','.join(self.aggregate)}&window=today&shareIdle=true&idle=true&"
-            "idleByNode=false&shareTenancyCosts=true&shareNamespaces=&shareCost=NaN&"
-            "shareSplit=weighted&chartType=costovertime&costUnit=cumulative&step="
+            f"/allocation/summary?aggregate={','.join(self.aggregate)}&accumulate=true&chartType=costovertime&"
+                "costUnit=cumulative&external=false&filter=&idle=true&idleByNode=false&includeSharedCostBreakdown=true&"
+                "shareCost=0&shareIdle=true&shareLabels=&shareNamespaces=&shareSplit=weighted&shareTenancyCosts=true&"
+                "window=today"
         )
         response = requests.get(self.endpoint + api)
         if response.status_code != 200 or response.json().get("code") != 200:
@@ -42,15 +43,15 @@ class MetricExporter:
                 % (api, response.status_code, response.text)
             )
         else:
-            items = response.json()["data"]["items"]["items"]
-            for item in items:
+            allocations = response.json()["data"]["sets"][0]["allocations"]
+            for item in allocations:
                 aggregation_labels = {}
-                names = item["name"].split("/")
+                names = item.split("/")
                 for i in range(len(self.aggregate)):
                     aggregation_labels[self.aggregate[i]] = names[i]
 
                 if self.extra_labels:
-                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(item["totalCost"])
+                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(allocations[item]["totalCost"])
                 else:
-                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels).set(item["totalCost"])
+                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels).set(allocations[item]["totalCost"])
             logging.info(f"cost metric {self.name} updated successfully")
