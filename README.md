@@ -22,11 +22,11 @@ kubernetes_daily_cost_usd{namespace="kube-system"} 1.1914006049581642
 
 ## How Does This Work
 
-The current implementation fetches cost information from [Kubecost](https://github.com/kubecost) via its API `/allocation/view`. Though Kubecost exposes cost metrics like `node_cpu_hourly_cost`, it requires extra calculation to get a detailed cost report like namespace-level costs. By using its API `/allocation/view`, the calculated cost reports can be directly exposed as Prometheus metrics. The arguments that are used for calling this API include:
+The current implementation fetches cost information from [Kubecost](https://github.com/kubecost) via its API `/allocation/summary` (see more information [here](https://docs.kubecost.com/apis/monitoring-apis/api-allocation#querying-with-summary-endpoint-to-view-condensed-payload-per-line-item)). Though Kubecost exposes cost metrics like `node_cpu_hourly_cost`, it requires extra calculation to get a detailed cost report like namespace-level costs. By using its API `/allocation/summary`, the calculated cost reports can be directly exposed as Prometheus metrics. The arguments that are used for calling this API include:
 
 | Parameter | Description                                                    | Value                              |
 | --------- | -------------------------------------------------------------- | ---------------------------------- |
-| aggregate | Level of aggregation                                           | configurable, namespace or cluster |
+| aggregate | Level of aggregation                                           | configurable, deployment, namespace, cluster, etc. |
 | window    | Period of time over which the cost is calculated               | today                              |
 | shareIdle | Whether idle resources should be shared with other allocations | true                               |
 
