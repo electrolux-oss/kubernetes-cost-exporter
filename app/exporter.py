@@ -32,9 +32,9 @@ class MetricExporter:
     def fetch(self):
         api = (
             f"/allocation/summary?aggregate={','.join(self.aggregate)}&accumulate=true&chartType=costovertime&"
-                "costUnit=cumulative&external=false&filter=&idle=true&idleByNode=false&includeSharedCostBreakdown=true&"
-                "shareCost=0&shareIdle=true&shareLabels=&shareNamespaces=&shareSplit=weighted&shareTenancyCosts=true&"
-                "window=today"
+            "costUnit=cumulative&external=false&filter=&idle=true&idleByNode=false&includeSharedCostBreakdown=true&"
+            "shareCost=0&shareIdle=true&shareLabels=&shareNamespaces=&shareSplit=weighted&shareTenancyCosts=true&"
+            "window=today"
         )
         response = requests.get(self.endpoint + api)
         if response.status_code != 200 or response.json().get("code") != 200:
@@ -47,11 +47,21 @@ class MetricExporter:
             for item in allocations:
                 aggregation_labels = {}
                 names = item.split("/")
+
+                if len(names) != len(self.aggregate):
+                    logging.warning(
+                        "Record names from a response should map to aggregation labels, expected %s, got %s"
+                        % (self.aggregate, names)
+                    )
+                    continue
+
                 for i in range(len(self.aggregate)):
                     aggregation_labels[self.aggregate[i]] = names[i]
 
                 if self.extra_labels:
-                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(allocations[item]["totalCost"])
+                    self.kubernetes_daily_cost_usd.labels(**aggregation_labels, **self.extra_labels).set(
+                        allocations[item]["totalCost"]
+                    )
                 else:
                     self.kubernetes_daily_cost_usd.labels(**aggregation_labels).set(allocations[item]["totalCost"])
             logging.info(f"cost metric {self.name} updated successfully")
